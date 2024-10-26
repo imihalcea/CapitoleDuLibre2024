@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:oxy="clr-namespace:OxyPlot.Avalonia;assembly=OxyPlot.Avalonia"
+             xmlns:vm="clr-namespace:spike_Oxyplot_Avalonia.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="spike_Oxyplot_Avalonia.Views.MainView"
+             x:DataType="vm:MainViewModel">
+    <Design.DataContext>
+        <vm:MainViewModel />
+    </Design.DataContext>
+    <oxy:Plot Title="Measurements"
+              Subtitle="continuously updated">
+        <oxy:Plot.Series>
+            <oxy:LineSeries Title="Value" DataFieldX="Time"
+                            DataFieldY="Value"
+                            ItemsSource="{Binding Measurements}"
+                            StrokeThickness="2" Color="Blue" />
+            <oxy:LineSeries Title="Maximum" DataFieldX="Time"
+                            DataFieldY="Maximum"
+                            ItemsSource="{Binding Measurements}"
+                            LineStyle="Dash" StrokeThickness="2"
+                            Color="Red" />
+            <oxy:LineSeries Title="Minimum" DataFieldX="Time"
+                            DataFieldY="Minimum"
+                            ItemsSource="{Binding Measurements}"
+                            LineStyle="Dot" StrokeThickness="2"
+                            Color="Green" />
+        </oxy:Plot.Series>
+    </oxy:Plot>
+</UserControl>
