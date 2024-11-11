@@ -8,3 +8,5 @@ Changements par rapport au template Avalonia :
 - Ajout de Height/Width sur la MainWindow
 
 NB : les view et view model oxyplot sont largement inspirés de l'exemple OxyPlot "BindingObservableCollectionDemo"
+
+---
