@@ -1,5 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
+using DataModel;
+using Driver.DataSources;
 
 namespace Driver;
 
@@ -23,7 +25,7 @@ public struct SysInfo
 
 
 
-public class CpuInfoReader
+public class CpuInfoReader : IDataSource 
 {
     [DllImport("libc")]
     private static extern int sysinfo(ref SysInfo info);
@@ -33,5 +35,26 @@ public class CpuInfoReader
         var info = new SysInfo();
         var ret = sysinfo(ref info);
         return ret == 0 ? info : null;
+    }
+
+    public async Task<SensorMeasure[]> Read(DateTime currentTime)
+    {
+        var sysInfo = Read();
+        if (sysInfo == null) return await Task.FromResult(Array.Empty<SensorMeasure>());
+
+        var results = new SensorMeasure[]
+        {
+            new SensorMeasure(currentTime, new SensorData(SensorIds.CpuLoad1, sysInfo.Value.loads[0])),
+            new SensorMeasure(currentTime, new SensorData(SensorIds.CpuLoad2, sysInfo.Value.loads[1])),
+            new SensorMeasure(currentTime, new SensorData(SensorIds.CpuLoad3, sysInfo.Value.loads[2]))
+
+        };
+        return await Task.FromResult(results);
+
+    }
+
+    public void Dispose()
+    {
+        // Nothing to dispose
     }
 }

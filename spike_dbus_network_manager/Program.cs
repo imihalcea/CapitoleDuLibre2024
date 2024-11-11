@@ -22,6 +22,7 @@ var networkManager = service.CreateNetworkManager("/org/freedesktop/NetworkManag
 foreach (var devicePath in await networkManager.GetDevicesAsync())
 {
   var device = service.CreateDevice(devicePath);
+  var interfaceName = await device.GetInterfaceAsync();
   if (await IsSoftwareDevice(device))
     continue;
   Console.WriteLine($"Found physical interface '{await device.GetInterfaceAsync()}'.");
@@ -30,21 +31,21 @@ foreach (var devicePath in await networkManager.GetDevicesAsync())
   await statistics.WatchPropertiesChangedAsync(
     (exception, change) =>
     {
-      Console.WriteLine($"Rx: {change.Properties.RxBytes/1024} Kb / Tx: {change.Properties.TxBytes/1024} Kb");
+      Console.WriteLine($"{interfaceName} - Rx: {change.Properties.RxBytes/1024} Kb / Tx: {change.Properties.TxBytes/1024} Kb");
     }, true, ObserverFlags.None);
   await statistics.SetRefreshRateMsAsync(5000);
 
   // ListProps(await device.GetPropertiesAsync());
-  await device.WatchStateChangedAsync(
-    (exception, change) =>
-    {
-      if (exception is null)
-        Console.WriteLine($"Interface changed from '{
-          Enum.GetName((NmDeviceState)change.OldState)
-        }' to '{
-          Enum.GetName((NmDeviceState)change.NewState)
-        }'.");
-    });
+  // await device.WatchStateChangedAsync(
+  //   (exception, change) =>
+  //   {
+  //     if (exception is null)
+  //       Console.WriteLine($"Interface changed from '{
+  //         Enum.GetName((NmDeviceState)change.OldState)
+  //       }' to '{
+  //         Enum.GetName((NmDeviceState)change.NewState)
+  //       }'.");
+  //   });
 }
 
 var disconnectReason = await connection.DisconnectedAsync();
