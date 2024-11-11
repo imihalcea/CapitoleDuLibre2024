@@ -1,4 +1,4 @@
-namespace AcquireServer;
+namespace DataModel;
 
 using SerialNumber = string;
 using SensorId = string;

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcquireServer", "AcquireSer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Driver", "Driver\Driver.csproj", "{FFEA9E2B-E612-4FB7-890B-AE6E6BBD5DAD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataModel", "DataModel\DataModel.csproj", "{6727468D-C71B-4FF6-870E-3F3495476BD0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{FFEA9E2B-E612-4FB7-890B-AE6E6BBD5DAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFEA9E2B-E612-4FB7-890B-AE6E6BBD5DAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FFEA9E2B-E612-4FB7-890B-AE6E6BBD5DAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6727468D-C71B-4FF6-870E-3F3495476BD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6727468D-C71B-4FF6-870E-3F3495476BD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6727468D-C71B-4FF6-870E-3F3495476BD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6727468D-C71B-4FF6-870E-3F3495476BD0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
