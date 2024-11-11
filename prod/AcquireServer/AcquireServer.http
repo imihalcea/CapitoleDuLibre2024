@@ -4,3 +4,35 @@ GET {{AcquisionServer_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+POST {{AcquisionServer_HostAddress}}/measures
+Content-Type: application/json
+
+{
+  "serialNumber": "FOO",
+  "data": [
+    {
+      "at": "2024-11-11T14:06:03Z",
+      "sensorData": {
+        "sensorId": "temp",
+        "value": 30.5
+      }
+    },
+    {
+      "at": "2024-11-11T14:06:04Z",
+      "sensorData": {
+        "sensorId": "temp",
+        "value": 30.8
+      }
+    },
+    {
+      "at": "2024-11-11T14:06:05Z",
+      "sensorData": {
+        "sensorId": "temp",
+        "value": 29.3
+      }
+    }
+  ]
+}
+
+###
