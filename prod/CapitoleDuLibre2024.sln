@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Driver", "Driver\Driver.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataModel", "DataModel\DataModel.csproj", "{6727468D-C71B-4FF6-870E-3F3495476BD0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Display", "Display\Display.csproj", "{70620A5A-5C75-4595-9B99-751E8C20D5CB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Display.Desktop", "Display.Desktop\Display.Desktop.csproj", "{C09785D1-9A78-4CF9-A7EE-7FDE3AB83B46}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +40,13 @@ Global
 		{6727468D-C71B-4FF6-870E-3F3495476BD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6727468D-C71B-4FF6-870E-3F3495476BD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6727468D-C71B-4FF6-870E-3F3495476BD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70620A5A-5C75-4595-9B99-751E8C20D5CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70620A5A-5C75-4595-9B99-751E8C20D5CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70620A5A-5C75-4595-9B99-751E8C20D5CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70620A5A-5C75-4595-9B99-751E8C20D5CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C09785D1-9A78-4CF9-A7EE-7FDE3AB83B46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C09785D1-9A78-4CF9-A7EE-7FDE3AB83B46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C09785D1-9A78-4CF9-A7EE-7FDE3AB83B46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C09785D1-9A78-4CF9-A7EE-7FDE3AB83B46}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
