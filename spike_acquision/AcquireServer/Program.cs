@@ -1,9 +1,13 @@
+using AcquireServer;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<IStoreDeviceMeasures, InMemoryStorage>();
+builder.Services.AddSingleton<DeviceMeasuresApi>();
 
 var app = builder.Build();
 
@@ -16,33 +20,31 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
-app.MapPost("/measures", () => { })
+app.MapPost("/measures", async (DeviceMeasuresApi api, DeviceData deviceData) =>
+    {
+        var result = await api.SaveMeasures(deviceData);
+        return Results.Ok(result);
+    })
     .WithName("SaveMeasures")
+    .WithOpenApi();
+
+app.MapGet("/measures/{serialNumber}", async (DeviceMeasuresApi api, string serialNumber) =>
+{
+    var result = await api.GetMeasuresByDevice(serialNumber);
+    return Results.Ok(result);
+})
+    .WithName("GetMeasuresByDevice")
+    .WithOpenApi();
+
+app.MapGet("/measures", async (DeviceMeasuresApi api) =>
+{
+    var result = await api.GetAllMeasures();
+    return Results.Ok(result);
+}).WithName("GetAllMeasures")
     .WithOpenApi();
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+
+public partial class Program { }

@@ -4,7 +4,7 @@ namespace AcquireServer;
 using SerialNumber = string;
 using SensorId = string;
 
-public class InMemoryStorage
+public class InMemoryStorage : IStoreDeviceMeasures
 {
     private readonly ConcurrentDictionary<SerialNumber, Dictionary<DateTime, List<SensorData>>> _data;
     
@@ -48,4 +48,11 @@ public class InMemoryStorage
         return _data.Select(d => new DeviceMeasures(d.Key, d.Value.Select(m => new Measures(m.Key, m.Value)).ToList())).ToList();
     }
     
+}
+
+public interface IStoreDeviceMeasures
+{
+    public void Save(DeviceData deviceData);
+    public List<Measures> MeasuresByDevice(SerialNumber serialNumber);
+    public List<DeviceMeasures> AllMeasures();
 }
