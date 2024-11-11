@@ -16,13 +16,13 @@ public record DeviceMeasures(SerialNumber SerialNumber, List<Measures> Measures)
 
 public class SensorIds
 {
-    public SensorId Temp => "temp";
-    public SensorId CpuLoad1 => "load_1";
-    public SensorId CpuLoad2 => "load_2";
-    public SensorId CpuLoad3 => "load_3";
-    public SensorId NetTx => "net_tx";
-    public SensorId NetRx => "net_rx";
+    public static SensorId Temp => "temp";
+    public static SensorId CpuLoad1 => "load_1";
+    public static SensorId CpuLoad2 => "load_2";
+    public static SensorId CpuLoad3 => "load_3";
+    public static SensorId NetTx => "net_tx";
+    public static SensorId NetRx => "net_rx";
     
-    public List<SensorId> All => [Temp, CpuLoad1, CpuLoad2, CpuLoad3, NetTx, NetRx];
+    public static List<SensorId> All => [Temp, CpuLoad1, CpuLoad2, CpuLoad3, NetTx, NetRx];
     
 }
