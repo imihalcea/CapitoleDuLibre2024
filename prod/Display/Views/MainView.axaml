@@ -2,15 +2,77 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:oxy="clr-namespace:OxyPlot.Avalonia;assembly=OxyPlot.Avalonia"
              xmlns:vm="clr-namespace:Display.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Display.Views.MainView"
              x:DataType="vm:MainViewModel">
-  <Design.DataContext>
-    <!-- This only sets the DataContext for the previewer in an IDE,
-         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-    <vm:MainViewModel />
-  </Design.DataContext>
+    <Design.DataContext>
+        <vm:MainViewModel />
+    </Design.DataContext>
+    
+    <Grid ColumnDefinitions="*" RowDefinitions="Auto,*,*,*">
+        <ComboBox Grid.Column="0" Grid.Row="0"
+                  HorizontalAlignment="Stretch"
+                  ItemsSource="{Binding PlotDevices}"
+                  SelectedItem="{Binding DisplayedDevice}" />
 
-  <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <oxy:Plot Grid.Column="0" Grid.Row="1">
+            <oxy:Plot.Legends>
+                <oxy:Legend />
+            </oxy:Plot.Legends>
+            <oxy:Plot.Axes>
+                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dot" />
+                <oxy:DateTimeAxis Position="Bottom" StringFormat="hh:mm:ss" MajorGridlineStyle="Dot" />
+            </oxy:Plot.Axes>
+            <oxy:Plot.Series>
+                <oxy:LineSeries Title="Temp" DataFieldX="At" DataFieldY="Temp"
+                                ItemsSource="{Binding PlotMeasures}"
+                                LineStyle="Solid" StrokeThickness="2"
+                                Color="Red" />
+            </oxy:Plot.Series>
+        </oxy:Plot>
+        
+        <oxy:Plot Grid.Column="0" Grid.Row="2">
+            <oxy:Plot.Legends>
+                <oxy:Legend />
+            </oxy:Plot.Legends>
+            <oxy:Plot.Axes>
+                <oxy:LinearAxis Key="Load" Position="Left" MajorGridlineStyle="Dot" />
+                <oxy:DateTimeAxis Position="Bottom" StringFormat="hh:mm:ss" MajorGridlineStyle="Dot" />
+            </oxy:Plot.Axes>
+            <oxy:Plot.Series>
+                <oxy:LineSeries Title="CpuLoad1" DataFieldX="At" DataFieldY="CpuLoad1"
+                                ItemsSource="{Binding PlotMeasures}"
+                                StrokeThickness="2" Color="Blue" />
+                <oxy:LineSeries Title="CpuLoad2" DataFieldX="At" DataFieldY="CpuLoad2"
+                                ItemsSource="{Binding PlotMeasures}"
+                                StrokeThickness="2" Color="DodgerBlue" />
+                <oxy:LineSeries Title="CpuLoad3" DataFieldX="At" DataFieldY="CpuLoad3"
+                                ItemsSource="{Binding PlotMeasures}"
+                                StrokeThickness="2" Color="DarkSlateBlue" />
+            </oxy:Plot.Series>
+        </oxy:Plot>
+        
+        <oxy:Plot Grid.Column="0" Grid.Row="3">
+            <oxy:Plot.Legends>
+                <oxy:Legend />
+            </oxy:Plot.Legends>
+            <oxy:Plot.Axes>
+                <oxy:LinearAxis Key="Net" Position="Left" MajorGridlineStyle="Dot" />
+                <oxy:DateTimeAxis Position="Bottom" StringFormat="hh:mm:ss" MajorGridlineStyle="Dot" />
+            </oxy:Plot.Axes>
+            <oxy:Plot.Series>
+                <oxy:LineSeries Title="NetTx" DataFieldX="At" DataFieldY="NetTx"
+                                ItemsSource="{Binding PlotMeasures}"
+                                LineStyle="Solid" StrokeThickness="2"
+                                Color="Green" />
+                <oxy:LineSeries Title="NetRx" DataFieldX="At" DataFieldY="NetRx"
+                                ItemsSource="{Binding PlotMeasures}"
+                                LineStyle="Solid" StrokeThickness="2"
+                                Color="Goldenrod" />
+            </oxy:Plot.Series>
+        </oxy:Plot>
+    </Grid>
+
 </UserControl>
