@@ -9,6 +9,7 @@ SERVICE_NAME="cdl2024-server.service"
 SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 REMOTE_USER="cdl"
 REMOTE_HOST="opicdl"
+ARCH="linux-arm"
 
 # Environment variables
 ASPNETCORE_URLS="http://0.0.0.0:8080"
@@ -17,13 +18,13 @@ ASPNETCORE_ENVIRONMENT="Development"
 
 build_daemon() {
     echo "Building daemon executable..."
-    dotnet publish -c "$CONFIGURATION" -r linux-arm --self-contained true -p:PublishSingleFile=true
+    dotnet publish -c "$CONFIGURATION" -r $ARCH --self-contained true -p:PublishSingleFile=true
 }
 
 # Function to upload the daemon executable
 upload_daemon() {
     echo "Uploading daemon executable..."
-    rsync -avz "./bin/$CONFIGURATION/net8.0/linux-arm/publish/$DAEMON_EXE" "$REMOTE_USER@$REMOTE_HOST:$DAEMON_PATH"
+    rsync -avz "./bin/$CONFIGURATION/net8.0/$ARCH/publish/$DAEMON_EXE" "$REMOTE_USER@$REMOTE_HOST:$DAEMON_PATH"
 }
 
 # Function to create the systemd service file
@@ -58,8 +59,7 @@ restart_service() {
 verify_service() {
     echo "Verifying service status..."
     ssh "$REMOTE_USER@$REMOTE_HOST" "sudo systemctl status $SERVICE_NAME"
-    ssh "$REMOTE_USER@$REMOTE_HOST" "sudo journalctl -fu $SERVICE_NAME"
-    
+    ssh "$REMOTE_USER@$REMOTE_HOST" "sudo journalctl -fu $SERVICE_NAME"  
 }
 
 # Main script
