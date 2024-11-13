@@ -37,7 +37,11 @@ var subscription = stream.Subscribe(
     ex => Console.WriteLine($"Error: {ex.Message}"),
     () => Console.WriteLine("Completed"));
 
+#if DEBUG
 Console.WriteLine("Press any key to stop...");
 Console.ReadKey();
 
 subscription.Dispose();
+#else
+Task.Delay(-1).GetAwaiter().GetResult();
+#endif
