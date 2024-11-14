@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Display.FrameBuffer", "Disp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Display.DirectRenderingManager", "Display.DirectRenderingManager\Display.DirectRenderingManager.csproj", "{8A71D0B0-F780-48CD-B30E-9A95FBCDD551}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Display.VirtualNetworkComputing", "Display.VirtualNetworkComputing\Display.VirtualNetworkComputing.csproj", "{0F059E8D-3F1E-4785-9F79-771FAB0F0528}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,5 +68,9 @@ Global
 		{8A71D0B0-F780-48CD-B30E-9A95FBCDD551}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A71D0B0-F780-48CD-B30E-9A95FBCDD551}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A71D0B0-F780-48CD-B30E-9A95FBCDD551}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F059E8D-3F1E-4785-9F79-771FAB0F0528}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F059E8D-3F1E-4785-9F79-771FAB0F0528}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F059E8D-3F1E-4785-9F79-771FAB0F0528}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F059E8D-3F1E-4785-9F79-771FAB0F0528}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
