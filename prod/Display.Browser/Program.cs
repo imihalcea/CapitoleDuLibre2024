@@ -15,7 +15,7 @@ internal sealed partial class Program
             {
               Environment.SetEnvironmentVariable(
                 "MEASURES_API_ROUTE",
-                "http://192.168.0.177:8080/measures"
+                "http://192.168.42.4:8080/measures"
                 );
             })
             .StartBrowserAppAsync("out");

@@ -12,7 +12,7 @@ REMOTE_HOST="rpi4cdl"
 ARCH="linux-arm64"
 
 # Environment variables
-MEASURES_API_ROUTE="http://192.168.0.177:8080/measures"
+MEASURES_API_ROUTE="http://192.168.42.4:8080/measures"
                 
 build_daemon() {
     echo "Building daemon executable..."
