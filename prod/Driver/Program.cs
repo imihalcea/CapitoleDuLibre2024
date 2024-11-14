@@ -1,9 +1,8 @@
 ﻿using System.Net.Http.Json;
 using System.Reactive.Linq;
-using System.Text;
-using System.Text.Json;
 using DataModel;
 using Driver;
+using Driver.Actuators;
 using Driver.DataSources;
 
 var serialNumber = Environment.GetEnvironmentVariable("SERIAL_NUMBER") ?? "UNKNOWN";
@@ -19,21 +18,36 @@ var acquisitionService = new AcquisitionService(
 );
 
 var httpClient = new HttpClient { BaseAddress = new Uri(serverBaseUrl) };
+var dataStore = new DataStore();
 
-var stream = Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(1))
+var controlService = new FanControlService(ActuatorsFactory.OnOffActuator(18), dataStore, SensorIds.Temp);
+
+var acquisitionStream = Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(1))
     .Select( async _ => await acquisitionService.Read(DateTime.Now));
 
+var controlStream = Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(1))
+    .Do(_ => controlService.Control(42));
 
-async void OnNext(Task<SensorMeasure[]> readSensors)
+async void AcquisitionOnNext(Task<SensorMeasure[]> readSensors)
 {
     Console.WriteLine($"[{DateTime.Now}] Sending data to server...");
     var measures = await readSensors;
+    foreach (var measure in measures)
+    {
+        var (key, value) = measure.SensorData;
+        dataStore.Update(key, value);
+    }
     var data = new DeviceData(serialNumber, measures.ToList());
     await httpClient.PostAsJsonAsync("/measures", data);
 }
 
-var subscription = stream.Subscribe(
-    OnNext,
+var acquisitionSubscription = acquisitionStream.Subscribe(
+    AcquisitionOnNext,
+    ex => Console.WriteLine($"Error: {ex.Message}"),
+    () => Console.WriteLine("Completed"));
+
+var controlSubscription = controlStream.Subscribe(
+    _ => Console.WriteLine("Controlling..."),
     ex => Console.WriteLine($"Error: {ex.Message}"),
     () => Console.WriteLine("Completed"));
 
@@ -41,7 +55,8 @@ var subscription = stream.Subscribe(
 Console.WriteLine("Press any key to stop...");
 Console.ReadKey();
 
-subscription.Dispose();
+acquisitionSubscription.Dispose();
+controlSubscription.Dispose();
 #else
 Task.Delay(-1).GetAwaiter().GetResult();
 #endif

@@ -1,8 +1,8 @@
 using System.Device.Gpio;
 
-namespace Driver;
+namespace Driver.Actuators;
 
-public class OnOffActuator: IDisposable
+public class OnOffActuator: IOnOffActuator
 {
     private readonly int _pin;
     private readonly GpioController _controller;
