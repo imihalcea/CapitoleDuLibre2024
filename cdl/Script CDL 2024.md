@@ -36,6 +36,8 @@ app.MapGet("/ping", ()=>"pong")
     .WithOpenApi();
 
 app.Run();
+
+public partial class Program { } // hack pour les tests api
 ```
 
 ### Vérifier que ça fonctionne
@@ -53,6 +55,102 @@ dotnet sln add AcquireServerTests/AcquireServerTests.csproj
 ```
 Ajouter le package Microsoft.AspNetCore.Mvc.Testing 8.0.11
 Referencer le projet AcquireServer dans AcquireServerTests
+Editer le fichier AcquireServerTests.csproj
+
+```xml
+   <PreserveCompilationContext>true</PreserveCompilationContext>
+    <GenerateDependencyFile>true</GenerateDependencyFile>
+    <GenerateRuntimeConfigurationFiles>true</enerateRuntimeConfigurationFiles>
+```
+
+
+Ajouter le fichier TestUtils.cs
+
+```cs
+using System.Net.Http.Json;
+using DataModel;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.VisualStudio.TestPlatform.TestHost;
+using static AcquireServerTests.TestUtils;
+
+namespace AcquireServerTests;
+
+public class WebApiTests
+{
+    private HttpClient _client;
+
+    [SetUp]
+    public void Setup()
+    {
+        var application = new WebApplicationFactory<Program>();
+        _client = application.CreateClient();
+    }
+
+    [Test]
+    public async Task SaveMeasures_ShouldReturnOk()
+    {
+        var deviceData = new DeviceData("123", new List<SensorMeasure>
+        {
+            new(T.T0, new SensorData("Probe1", 1.0f)),
+            new(T.T0, new SensorData("Probe2", 2.0f)),
+            new(T.T0, new SensorData("Probe3", 3.0f))
+        });
+
+        var response = await _client.PostAsJsonAsync("/measures", deviceData);
+
+        response.EnsureSuccessStatusCode();
+    }
+
+    [Test]
+    public async Task GetMeasuresByDevice_ShouldReturnMeasures()
+    {
+        var deviceData = new DeviceData("123", new List<SensorMeasure>
+        {
+            new(T.T0, new SensorData("Probe1", 1.0f)),
+            new(T.T0, new SensorData("Probe2", 2.0f)),
+            new(T.T0, new SensorData("Probe3", 3.0f))
+        });
+
+        await _client.PostAsJsonAsync("/measures", deviceData);
+
+        var response = await _client.GetAsync("/measures/123");
+        response.EnsureSuccessStatusCode();
+
+        var measures = await response.Content.ReadFromJsonAsync<List<Measures>>();
+        Assert.IsNotNull(measures);
+        Assert.That(measures.Count, Is.EqualTo(1));
+        Assert.That(measures[0].SensorsMeasures.Count, Is.EqualTo(3));
+    }
+
+    [Test]
+    public async Task GetAllMeasures_ShouldReturnAllMeasures()
+    {
+        var deviceData1 = new DeviceData("123", new List<SensorMeasure>
+        {
+            new(T.T0, new SensorData("Probe1", 1.0f)),
+            new(T.T0, new SensorData("Probe2", 2.0f)),
+            new(T.T0, new SensorData("Probe3", 3.0f))
+        });
+
+        var deviceData2 = new DeviceData("456", new List<SensorMeasure>
+        {
+            new(T.T1, new SensorData("Probe4", 4.0f)),
+            new(T.T1, new SensorData("Probe5", 5.0f)),
+            new(T.T1, new SensorData("Probe6", 6.0f))
+        });
+
+        await _client.PostAsJsonAsync("/measures", deviceData1);
+        await _client.PostAsJsonAsync("/measures", deviceData2);
+
+        var response = await _client.GetAsync("/measures");
+        response.EnsureSuccessStatusCode();
+
+        var allMeasures = await response.Content.ReadFromJsonAsync<List<DeviceMeasures>>();
+        Assert.IsNotNull(allMeasures);
+        Assert.That(allMeasures.Count, Is.EqualTo(2));
+    }
+}
+```
 
 Ajouter un fichier de test WebApiTests.cs
 
@@ -140,8 +238,10 @@ public class WebApiTests
 }
 ```
 
+### Jouer les tests
 
-## 1.3 
+
+## 1.3 Implémentation des endpoints
 
 ### Ajouter les références au projet DataModel
 
@@ -151,8 +251,97 @@ public class WebApiTests
 global using DataModel;
 ```
 
+### Ajouter le composant de storage InMemoryStorage.cs
 
+```cs
+using System.Collections.Concurrent;
+namespace AcquireServer;
 
+using SerialNumber = string;
+using SensorId = string;
+
+public interface IStoreDeviceMeasures
+{
+    public void Save(DeviceData deviceData);
+    public List<Measures> MeasuresByDevice(SerialNumber serialNumber);
+    public List<DeviceMeasures> AllMeasures();
+}
+
+public class InMemoryStorage : IStoreDeviceMeasures
+{
+    private readonly ConcurrentDictionary<SerialNumber, Dictionary<DateTime, List<SensorData>>> _data;
+    
+    public InMemoryStorage()
+    {
+        _data = new ConcurrentDictionary<SerialNumber, Dictionary<DateTime, List<SensorData>>>();
+    }
+
+    public void Save(DeviceData deviceData)
+    {
+        if (!_data.TryGetValue(deviceData.SerialNumber, out var measures))
+        {
+            measures = new Dictionary<DateTime, List<SensorData>>();
+            _data.TryAdd(deviceData.SerialNumber, measures);
+        }
+
+        foreach (var measure in deviceData.Data)
+        {
+            if (!measures.TryGetValue(measure.At, out var values))
+            {
+                values = [];
+                measures.TryAdd(measure.At, values);
+            }
+
+            values.Add(measure.SensorData);
+        }
+    }
+    
+    public List<Measures> MeasuresByDevice(SerialNumber serialNumber)
+    {
+        if (!_data.TryGetValue(serialNumber, out var measures))
+        {
+            return new List<Measures>();
+        }
+
+        return measures.Select(m => new Measures(m.Key, m.Value)).ToList();
+    }
+    
+    public List<DeviceMeasures> AllMeasures()
+    {
+        return _data.Select(d => new DeviceMeasures(d.Key, d.Value.Select(m => new Measures(m.Key, m.Value)).ToList())).ToList();
+    }
+    
+}
+```
+
+### Ajouter la classe DeviceMeasuresApi.cs
+
+```cs
+namespace AcquireServer;
+
+public class DeviceMeasuresApi(IStoreDeviceMeasures store)
+{
+
+    public async Task<bool> SaveMeasures(DeviceData deviceData)
+    {
+        store.Save(deviceData);
+        return await Task.FromResult(true);
+    }
+
+    public Task<List<Measures>> GetMeasuresByDevice(string serialNumber)
+    {
+        var measuresByDevice = store.MeasuresByDevice(serialNumber);
+        return Task.FromResult(measuresByDevice);
+    }
+
+    public Task<List<DeviceMeasures>> GetAllMeasures()
+    {
+        var deviceMeasuresList = store.AllMeasures();
+        return Task.FromResult(deviceMeasuresList);
+    }
+    
+}
+```
 
 
 ## 2. Native lib : CPUload
