@@ -1,9 +1,7 @@
-using System;
 using System.Runtime.InteropServices;
 using DataModel;
-using Driver.DataSources;
 
-namespace Driver;
+namespace Driver.DataSources;
 
 [StructLayout(LayoutKind.Sequential)]
 public struct SysInfo

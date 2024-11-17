@@ -4,6 +4,13 @@ namespace AcquireServer;
 using SerialNumber = string;
 using SensorId = string;
 
+public interface IStoreDeviceMeasures
+{
+    public void Save(DeviceData deviceData);
+    public List<Measures> MeasuresByDevice(SerialNumber serialNumber);
+    public List<DeviceMeasures> AllMeasures();
+}
+
 public class InMemoryStorage : IStoreDeviceMeasures
 {
     private readonly ConcurrentDictionary<SerialNumber, Dictionary<DateTime, List<SensorData>>> _data;
@@ -50,9 +57,3 @@ public class InMemoryStorage : IStoreDeviceMeasures
     
 }
 
-public interface IStoreDeviceMeasures
-{
-    public void Save(DeviceData deviceData);
-    public List<Measures> MeasuresByDevice(SerialNumber serialNumber);
-    public List<DeviceMeasures> AllMeasures();
-}
