@@ -819,11 +819,6 @@ var controlSubscription = controlStream.Subscribe(
     () => Console.WriteLine("Completed"));
 ```
 
-
-
-
-
-
 ## 8. Display embedded
 
 On rajoute une appli console `Display.DirectRenderingManager` 
