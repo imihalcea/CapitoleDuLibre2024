@@ -475,16 +475,8 @@ Ouvrir le projet Driver aller dans le fichier Program.cs
 
 ### 3.1 Accès aux données du serveur
 
-```
-dotnet new avalonia.xplat -o Display
-cd Display
-rm -rf Display.Android/ Display.iOS/ Display.Browser/
-rider Display.sln
-```
 
-Dans Rider
-- Enlever les projets Android/iOS/Browser qui n'existent plus
-- Executer Display.Desktop : on a une appli vide opérationnelle
+Executer Display.Desktop : on a une appli vide opérationnelle
 
 On veut afficher les valeurs renvoyées par le serveur
 On référence
@@ -821,20 +813,7 @@ var controlSubscription = controlStream.Subscribe(
 
 ## 8. Display embedded
 
-On rajoute une appli console `Display.DirectRenderingManager` 
-
-On référence :
-- le projet Display
-- Avalonia.LinuxFrameBuffer
-
-```csproj
-<ItemGroup>
-	<PackageReference Include="Avalonia.LinuxFrameBuffer" Version="$(AvaloniaVersion)"/>
-	<!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-	<PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)"/>
-	<ProjectReference Include="..\Display\Display.csproj"/>
-</ItemGroup>
-```
+On charge l'appli console `Display.DirectRenderingManager` 
 
 On explique que Avalonia.LinuxFrameBuffer permet de faire du Linux sans serveur X ou Wayland :
 - soit en Framebuffer avec un rendu logiciel
@@ -865,22 +844,7 @@ class Program
 
 **Si on a le temps**
 
-On rajoute une appli console `Display.VirtualNetworkComputing` 
-
-On référence :
-- le projet Display
-- Avalonia.Headless.Vnc
-- Avalonia.Skia
-
-```csproj
-<ItemGroup>
-	<PackageReference Include="Avalonia.Headless.Vnc" Version="$(AvaloniaVersion)"/>
-	<PackageReference Include="Avalonia.Skia" Version="$(AvaloniaVersion)"/>
-	<!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-	<PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)"/>
-	<ProjectReference Include="..\Display\Display.csproj"/>
-</ItemGroup>
-```
+On change l'appli console `Display.VirtualNetworkComputing`
 
 On modifie le programme principal :
 
