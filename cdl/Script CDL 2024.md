@@ -343,8 +343,133 @@ public class DeviceMeasuresApi(IStoreDeviceMeasures store)
 }
 ```
 
+### Definir les endpoints dans le fichier Program.cs
+
+Config du container des dépendances
+
+```cs
+builder.Services.AddSingleton<IStoreDeviceMeasures, InMemoryStorage>();
+builder.Services.AddSingleton<DeviceMeasuresApi>();
+```
+Ajout du endpoint d'enregistrement des mesures
+
+```cs
+app.MapPost("/measures", async (DeviceMeasuresApi api, DeviceData deviceData) =>
+    {
+        var result = await api.SaveMeasures(deviceData);
+        return Results.Ok(result);
+    })
+    .WithName("SaveMeasures")
+    .WithOpenApi();
+```
+
+Ajout du endpoint de récupération des mesures par device
+
+```cs
+app.MapGet("/measures/{serialNumber}", async (DeviceMeasuresApi api, string serialNumber) =>
+{
+    var result = await api.GetMeasuresByDevice(serialNumber);
+    return Results.Ok(result);
+})
+    .WithName("GetMeasuresByDevice")
+    .WithOpenApi();
+```
+
+Ajout du endpoint de récupération de toutes les mesures
+
+```cs
+app.MapGet("/measures", async (DeviceMeasuresApi api) =>
+{
+    var result = await api.GetAllMeasures();
+    return Results.Ok(result);
+}).WithName("GetAllMeasures")
+    .WithOpenApi();
+```
+
+Jouer les tests oOo => ça passe \o/
+
+## 1.4 Le script de déploiement sur le serveur 
+
+Ajouter un fichier deploy.sh
+
+```bash
+#!/bin/bash
+
+# Configuration
+CONFIGURATION="Release"
+DAEMON_EXE="AcquireServer"
+DAEMON_FOLDER="/home/cdl"
+DAEMON_PATH="$DAEMON_FOLDER/$DAEMON_EXE"
+SERVICE_NAME="cdl2024-server.service"
+SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
+REMOTE_USER="cdl"
+REMOTE_HOST="opicdl"
+ARCH="linux-arm"
+
+# Environment variables
+ASPNETCORE_URLS="http://0.0.0.0:8080"
+ASPNETCORE_ENVIRONMENT="Development"
+#ASPNETCORE_ENVIRONMENT="Production"
+
+build_daemon() {
+    echo "Building daemon executable..."
+    dotnet publish -c "$CONFIGURATION" -r $ARCH --self-contained true -p:PublishSingleFile=true
+}
+
+# Function to upload the daemon executable
+upload_daemon() {
+    echo "Uploading daemon executable..."
+    rsync -avz "./bin/$CONFIGURATION/net8.0/$ARCH/publish/$DAEMON_EXE" "$REMOTE_USER@$REMOTE_HOST:$DAEMON_PATH"
+}
+
+# Function to create the systemd service file
+create_service() {
+    echo "Creating systemd service file..."
+    ssh "$REMOTE_USER@$REMOTE_HOST" "sudo tee $SERVICE_PATH > /dev/null" <<EOF
+[Unit]
+Description=CDL2024 AcquireServer Service
+After=network.target
+
+[Service]
+ExecStart=$DAEMON_PATH
+Restart=always
+User=$REMOTE_USER
+Environment="ASPNETCORE_URLS=$ASPNETCORE_URLS"
+Environment="ASPNETCORE_ENVIRONMENT=$ASPNETCORE_ENVIRONMENT"
+
+[Install]
+WantedBy=multi-user.target
+EOF
+}
+
+# Function to reload systemd and restart the service
+restart_service() {
+    echo "Reloading systemd and restarting the service..."
+    ssh "$REMOTE_USER@$REMOTE_HOST" "sudo systemctl daemon-reload"
+    ssh "$REMOTE_USER@$REMOTE_HOST" "sudo systemctl restart $SERVICE_NAME"
+    ssh "$REMOTE_USER@$REMOTE_HOST" "sudo systemctl enable $SERVICE_NAME"
+}
+
+# Function to verify the service status
+verify_service() {
+    echo "Verifying service status..."
+    ssh "$REMOTE_USER@$REMOTE_HOST" "sudo systemctl status $SERVICE_NAME"
+    ssh "$REMOTE_USER@$REMOTE_HOST" "sudo journalctl -fu $SERVICE_NAME"  
+}
+
+# Main script
+build_daemon
+upload_daemon
+create_service
+restart_service
+verify_service
+```
 
 ## 2. Native lib : CPUload
+
+Ouvrir le projet Driver aller dans le fichier Program.cs
+
+
 
 ## 3. Display simple
 
@@ -532,8 +657,24 @@ Et on rajoute le thème Oxyplot !!!
 On exécute le Display.Desktop et on a un bel affichage graphique
 
 
-## 4. DBus : network
-## 5. FS : temperature
+## 4. DBus : network & 5. FS : temperature
+
+### Dans driver datasources on ajoute les fichiers:
+
+- NetworkManager.DBus.cs
+- RxTxReader.cs
+- CpuTempSensor.cs
+
+### Modifier Program.cs
+
+```cs
+var acquisitionService = new AcquisitionService(
+    new CpuInfoReader(),
+    new CpuTempSensor(),
+    new RxTxReader(netInterfaceName, Convert.ToUInt16(refreshRate))
+);
+```
+
 ## 6. Display full
 
 On met à jour le PlotMeasure avec les nouvelles valeurs
@@ -635,6 +776,54 @@ On met à jour le xaml avec les 3 graphiques
 On exécute le Display.Desktop et on a l'affichage graphique complet
 
 ## 7. GPIO : fan control
+
+### Expliquer le package System.Device.Gpio
+
+### Montrer le fichier OnOffActuator.cs
+
+### Ajouter le fichier FanControlService.cs
+
+```cs
+using Driver.Actuators;
+
+namespace Driver;
+
+public class FanControlService(IOnOffActuator fan, DataStore dataStore, string tempSensorId)
+{
+    public void Control(int tempSetPoint)
+    {
+        var temp = dataStore.Get(tempSensorId);
+        if (temp == null)
+            return;
+        
+        if (temp > tempSetPoint)
+            fan.On();
+        else
+            fan.Off();
+    }
+    
+}
+```
+
+### Modifier Program.cs
+
+Ajouter le control Stream
+
+```cs
+var controlStream = Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(1))
+    .Do(_ => controlService.Control(42));
+
+var controlSubscription = controlStream.Subscribe(
+    _ => Console.WriteLine("Controlling..."),
+    ex => Console.WriteLine($"Error: {ex.Message}"),
+    () => Console.WriteLine("Completed"));
+```
+
+
+
+
+
+
 ## 8. Display embedded
 
 On rajoute une appli console `Display.DirectRenderingManager` 
